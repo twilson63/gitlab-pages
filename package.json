@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "body": "^5.1.0",
+    "gitlab": "^1.4.1",
     "http-hash-router": "^1.1.0",
     "send-data": "^8.0.0"
   }
