@@ -52,6 +52,7 @@ router.set('/api/project', (req, res) => {
       return true
       function handle (path) {
         return function (tree) {
+          console.log(tree)
           tree.forEach(function (node) {
             if (node.type === 'tree') {
               return gitlab.projects.repository.listTree(body.project_id, { path: node.name }, handle(node.name))
@@ -62,6 +63,7 @@ router.set('/api/project', (req, res) => {
               }
             }, function (e, r, b) {
               if (e) return console.dir(e)
+              console.log(node.name)
               if (path.length > 0) { node.name = path + '/' + node.name }
               db.putAttachment('_design/' + body.repository.name, node.name,
                 rev, b, mime.lookup(node.name))
