@@ -40,6 +40,7 @@ router.set('/api/project', (req, res) => {
     if (err) { return sendError(req, res, { body: err.message }) }
     // need to build app.js file
     var ddoc = {
+      _attachments: {},
       rewrites: [{
         from: '/',
         to: 'index.html'
