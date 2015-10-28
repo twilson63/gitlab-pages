@@ -73,7 +73,7 @@ router.set('/api/project', (req, res) => {
               console.log(attachment)
               console.log(rev)
               console.log(attachmentType)
-              db.putAttachment(doc, attachment,
+              db.putAttachment(doc, new Buffer(attachment),
                 rev, b, attachmentType)
                 .then(function (result) {
                   rev = result.rev
