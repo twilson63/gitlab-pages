@@ -72,6 +72,7 @@ router.set('/api/project', (req, res) => {
                   if (err) return console.dir(err)
                   console.log(body)
                 })
+                .catch(function (err) { console.log(err.message) })
             })
           })
         }
