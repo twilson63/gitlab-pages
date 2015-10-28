@@ -66,8 +66,15 @@ router.set('/api/project', (req, res) => {
               console.log(node.name)
               console.log(b)
               if (path.length > 0) { node.name = path + '/' + node.name }
-              db.putAttachment('_design/' + body.repository.name, node.name,
-                rev, b, mime.lookup(node.name))
+              var doc = '_design/' + body.repository.name
+              var attachment = node.name
+              var attachmentType = mime.lookup(node.name)
+              console.log(doc)
+              console.log(attachment)
+              console.log(rev)
+              console.log(attachmentType)
+              db.putAttachment(doc, attachment,
+                rev, b, attachmentType)
                 .then(function (result) {
                   rev = result.rev
                   if (err) return console.dir(err)
