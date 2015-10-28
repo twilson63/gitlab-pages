@@ -39,20 +39,28 @@ router.set('/api/project', (req, res) => {
   body(req, res, (err, body) => {
     if (err) { return sendError(req, res, { body: err.message }) }
     // need to build app.js file
-
-    db.putIfNotExists('_design/' + body.repository.name, {
+    var ddoc = {
       rewrites: [{
         from: '/',
         to: 'index.html'
       }]
-    }).then(function (result) {
-      console.log(result)
-      var rev = result.rev
-      gitlab.projects.repository.listTree(body.project_id, handle(''))
-      return true
+    }
+    // function done() {
+    //   console.log(ddoc)
+    // }
+    // db.putIfNotExists('_design/' + body.repository.name, {
+    //   rewrites: [{
+    //     from: '/',
+    //     to: 'index.html'
+    //   }]
+    // }).then(function (result) {
+    //   var rev = result.rev
+    gitlab.projects.repository.listTree(body.project_id, handle(''))
+
+
+      //return true
       function handle (path) {
         return function (tree) {
-          //console.log(tree)
           tree.forEach(function (node) {
             if (node.type === 'tree') {
               return gitlab.projects.repository.listTree(body.project_id, { path: node.name }, handle(node.name))
@@ -63,33 +71,32 @@ router.set('/api/project', (req, res) => {
               }
             }, function (e, r, b) {
               if (e) return console.dir(e)
-              console.log(node.name)
-              console.log(b)
               if (path.length > 0) { node.name = path + '/' + node.name }
-              var doc = '_design/' + body.repository.name
-              var attachment = node.name
-              var attachmentType = mime.lookup(node.name)
-              console.log(doc)
-              console.log(attachment)
-              console.log(rev)
-              console.log(attachmentType)
-              db.putAttachment(doc, attachment,
-                rev, new Buffer(b), attachmentType)
-                .then(function (result) {
-                  console.log(result)
-                  rev = result.rev
-                })
-                .catch(function (err) {
-                  console.log('Attachment Error' + err.message)
-                })
+
+              ddoc._attachments[node.name] = {
+                content_type: mime.lookup(node.name),
+                data: new Buffer(b)
+              }
+
+              console.dir(ddoc)
+              // var doc = '_design/' + body.repository.name
+              // var attachment = node.name
+              // var attachmentType = mime.lookup(node.name)
+              // db.putAttachment(doc, attachment, rev, new Buffer(b), attachmentType)
+              //   .then(function (result) {
+              //     console.log(result)
+              //     rev = result.rev
+              //   })
+              //   .catch(function (err) {
+              //     console.log('Attachment Error ' + err.message)
+              //   })
             })
           })
         }
       }
-    }).then(function () {
-      console.dir(body)
-      send(req, res, { ok: true })
-    })
+    // }).then(function () {
+    send(req, res, { ok: true })
+    // })
   })
 })
 
