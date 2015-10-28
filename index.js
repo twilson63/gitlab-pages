@@ -64,13 +64,14 @@ router.set('/api/project', (req, res) => {
             }, function (e, r, b) {
               if (e) return console.dir(e)
               console.log(node.name)
+              console.log(b)
               if (path.length > 0) { node.name = path + '/' + node.name }
               db.putAttachment('_design/' + body.repository.name, node.name,
                 rev, b, mime.lookup(node.name))
                 .then(function (result) {
                   rev = result.rev
                   if (err) return console.dir(err)
-                  console.log(body)
+                  console.log(result)
                 })
                 .catch(function (err) { console.log(err.message) })
             })
