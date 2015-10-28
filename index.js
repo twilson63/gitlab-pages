@@ -31,7 +31,7 @@ router.set('/api/project', (req, res) => {
   body(req, res, (err, body) => {
     if (err) { return sendError(req, res, { body: err.message }) }
     console.log(body)
-    deploy(body.project_id, body.respository.name)
+    deploy(body.project_id, body.repository.name)
     send(req, res, { ok: true })
   })
 })
