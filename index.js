@@ -40,12 +40,12 @@ router.set('/api/project', (req, res) => {
     if (err) { return sendError(req, res, { body: err.message }) }
     // need to build app.js file
 
-    db.upsert({
+    db.putIfNotExists('_design/' + body.repository.name, {
       rewrites: [{
         from: '/',
         to: 'index.html'
       }]
-    }, '_design/' + body.repository.name).then(function (result) {
+    }).then(function (result) {
       var rev = result.rev
       gitlab.projects.repository.listTree(body.project_id, handle(''))
 
