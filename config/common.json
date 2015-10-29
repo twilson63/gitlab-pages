@@ -6,8 +6,6 @@
   "auth": {
 
   },
-  "deploy": {
-    "branch": ""
-  },
+  "deploy": "refs/heads/gh-pages",
   "server": "http://w3z.herokuapp.com/api/project"
 }
