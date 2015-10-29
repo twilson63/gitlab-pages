@@ -1,31 +1,35 @@
-var config = {
-  url: 'http://gitlab.chscoderdojo.com',
-  token: 'nP8649d8fqqxN5zCb3Aj'
-}
-var apiUrl = config.url + '/api/v3'
+
 var request = require('request')
 
-var gitlab = require('gitlab')(config)
+module.exports = (db, config) => {
+  var gitlab = require('gitlab')(config)
+  var apiUrl = config.url + '/api/v3'
 
-module.exports = (db) => {
   return (id, name) => {
     gitlab.projects.repository.listTree(id, handle(''))
+
     function handle (path) {
       return function (tree) {
         tree.forEach((node) => {
           if (node.type === 'tree') {
             return gitlab.projects.repository.listTree(id, handle(node.name))
           }
-
-          request.get(`${apiUrl}/projects/${id}/repository/raw_blobs/${node.id}`, {
-            qs: {
-              private_token: config.token
-            }
-          }, function (e, r, b) {
-            db.put([name, node.name].join('/'), b)
-          })
+          storeAsset(`${apiUrl}/projects/${id}/repository/raw_blobs/${node.id}`, name)
         })
       }
     }
+  }
+
+  // save asset to local database
+  function storeAsset (assetUrl, project, asset) {
+    request.get(assetUrl, {
+      qs: {
+        private_token: config.token
+      }
+    }, (err, r, b) => {
+      // handle error
+      if (err) return console.dir(err)
+      db.put([project, asset].join('/'), b)
+    })
   }
 }

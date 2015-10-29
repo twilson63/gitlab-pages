@@ -1,0 +1,13 @@
+{
+  "gitlab": {
+    "url": "http://gitlab.chscoderdojo.com",
+    "token": "nP8649d8fqqxN5zCb3Aj"
+  },
+  "auth": {
+
+  },
+  "deploy": {
+    "branch": ""
+  },
+  "server": "http://w3z.herokuapp.com/api/project"
+}

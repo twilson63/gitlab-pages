@@ -5,6 +5,13 @@ create a static site service, like github pages for your gitlab repositories.
 This project is a proof of concept that uses levelup and gitlab api to hook into
 gitlab repositories and deploy static sites when commits are pushed to gitlab.
 
+## Getting Started
+
+* Setup Gitlab
+* Install Gitlab Pages Server
+* Add system hook event
+* Profit
+
 ## Setup for herokuapp
 
 // configure gitlab account
