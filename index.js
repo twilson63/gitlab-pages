@@ -1,3 +1,6 @@
+var levelup = require('levelup')
+var db = levelup('./sites')
+
 var body = require('body/json')
 var send = require('send-data/json')
 var sendError = require('send-data/error')
@@ -26,13 +29,44 @@ router.set('/api/system', (req, res) => {
   })
 })
 
-var deploy = require('./deploy')
+var store = require('./store')(db)
 router.set('/api/project', (req, res) => {
   body(req, res, (err, body) => {
     if (err) { return sendError(req, res, { body: err.message }) }
-    console.log(body)
-    deploy(body.project_id, body.repository.name)
+    store(body.project_id, body.repository.name)
     send(req, res, { ok: true })
+  })
+})
+
+var mime = require('mime')
+
+router.set('/:asset', (req, res, opts) => {
+  var project = 'awesome'
+  if (process.env.NODE === 'production') {
+    project = req.headers.host.split('.')[0]
+  }
+  db.get([project, opts.params.asset].join('/'), (err, doc) => {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'})
+      return res.end('Not Found')
+    }
+    res.writeHead(200, {'Content-Type': mime.lookup(opts.params.asset)})
+    res.end(doc)
+  })
+})
+
+router.set('/', (req, res, opts) => {
+  var project = 'awesome'
+  if (process.env.NODE === 'production') {
+    project = req.headers.host.split('.')[0]
+  }
+  db.get([project, 'index.html'].join('/'), (err, doc) => {
+    if (err) {
+      res.writeHead(404, {'Content-Type': 'text/html'})
+      return res.end('Not Found')
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'})
+    res.end(doc)
   })
 })
 

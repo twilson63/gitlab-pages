@@ -7,6 +7,7 @@ var db = require('nano')(couchUrl)
 var apiUrl = config.url + '/api/v3'
 var mime = require('mime')
 var request = require('request')
+var _ = require('underscore')
 
 module.exports = (project_id, name) => {
   var gitlab = require('gitlab')(config)
@@ -21,17 +22,19 @@ module.exports = (project_id, name) => {
     if (e) {
       db.get('_design/' + name, function (e, b) {
         rev = b._rev
+        console.log(rev)
         gitlab.projects.repository.listTree(project_id, handle(''))
       })
       return
     }
     rev = b.rev
+    console.log(rev)
     gitlab.projects.repository.listTree(project_id, handle(''))
   })
 
   function handle (path) {
     return function (tree) {
-      tree.forEach(function (node) {
+      _(tree).each(function (node) {
         if (node.type === 'tree') {
           return gitlab.projects.repository.listTree(project_id, { path: node.name }, handle(node.name))
         }
@@ -42,12 +45,17 @@ module.exports = (project_id, name) => {
         }, function (e, r, b) {
           if (e) return console.dir(e)
           if (path.length > 0) { node.name = path + '/' + node.name }
-          db.attachment.insert('_design/' + name, node.name, b, mime.lookup(node.name), {
-            rev: rev
-          }, function (err, body) {
+          db.get('_design/' + name, function (err, doc) {
             if (err) return console.dir(err)
-            rev = body.rev
-            console.log(body)
+            console.log(doc)
+            db.attachment.insert('_design/' + name, node.name, b, mime.lookup(node.name), {
+              rev: doc._rev
+            }, function (err, body) {
+              if (err) return console.dir(err)
+              console.log('updated ' + node.name)
+              rev = body.rev
+              console.log(body)
+            })
           })
         })
       })
