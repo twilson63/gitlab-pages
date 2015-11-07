@@ -43,9 +43,9 @@ router.set('/api/project', (req, res) => {
     // handle error
     if (err) { return sendError(req, res, { body: err.message }) }
     // get repo files
-    if (body.ref === config.get('deploy')) {
+    //if (body.ref === config.get('deploy')) {
       store(body.project_id, body.repository.name)
-    }
+    //}
     send(req, res, { ok: true })
   })
 })
